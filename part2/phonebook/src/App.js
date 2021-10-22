@@ -1,27 +1,28 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import Form from './components/Form'
 import Input from './components/Input'
 import Persons from './components/Persons'
 
 const App = () => {
-  const [person, setPerson] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
-
+  const [person, setPerson] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  
+  const filteredPerson = person.filter(
+    p => p.name.toLowerCase().includes(filter.toLowerCase())
+  )
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/persons')
+      .then(response => setPerson(response.data))
+      .catch(err => console.error(err))
+  }, [])
 
   const handleNameChange = (e) => setNewName(e.target.value)
   const handleNumberChange = (e) => setNewNumber(e.target.value)
   const handleFilterChange = (e) => setFilter(e.target.value)
-
-  const filteredPerson = person.filter(
-    p => p.name.toLowerCase().includes(filter.toLowerCase())
-  )
   
   const handleSubmit = (e) => {
     e.preventDefault()
