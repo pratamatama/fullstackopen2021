@@ -1,28 +1,34 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import Form from './components/Form'
 import Input from './components/Input'
 import Persons from './components/Persons'
+import PersonService from './services/persons'
 
 const App = () => {
-  const [person, setPerson] = useState([])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   
-  const filteredPerson = person.filter(
+  const filteredPerson = persons.filter(
     p => p.name.toLowerCase().includes(filter.toLowerCase())
   )
 
   useEffect(() => {
-    axios.get('http://localhost:3001/persons')
-      .then(response => setPerson(response.data))
+    PersonService
+      .getAll()
+      .then(initialPersons => setPersons(initialPersons))
       .catch(err => console.error(err))
   }, [])
 
   const handleNameChange = (e) => setNewName(e.target.value)
   const handleNumberChange = (e) => setNewNumber(e.target.value)
   const handleFilterChange = (e) => setFilter(e.target.value)
+  
+  const clearInput = () => {
+    setNewName('')
+    setNewNumber('')
+  }
   
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -31,14 +37,46 @@ const App = () => {
       return alert('Please fill all the field')
     }
 
-    const notRegistered = person.findIndex(p => p.name.toLowerCase() === newName.toLowerCase()) === -1
-    if (notRegistered) {
-      setPerson(person.concat({ name: newName, number: newNumber }))
-      setNewName('')
-      setNewNumber('')
-    } else {
-      alert(`${newName} is already added to phonebook`)
-    }
+    const index = persons.findIndex(
+      p => p.name.toLowerCase() === newName.toLowerCase()
+    )
+
+    index === -1
+      ? createPerson()
+      : updatePerson(persons[index])
+  }
+
+  const createPerson = () => {
+    PersonService
+      .create({ name: newName, number: newNumber})
+      .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+      .then(_ => clearInput())
+      .catch(err => console.error(err))
+  }
+
+  const updatePerson = (person) => {
+    const confirmed = window.confirm(
+      `${person.name} is already added to phonebook, replace old number with a new one?`
+    )
+
+    if (!confirmed) return
+
+    PersonService
+      .update(person.id, { name: newName, number: newNumber })
+      .then(returnedPerson => setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson)))
+      .then(_ => clearInput())
+      .catch(err => console.error(err))
+  }
+
+  const deletePerson = (person) => {
+    const confirmed = window.confirm(`Delete ${person.name} ?`)    
+    
+    if (!confirmed) return
+
+    PersonService
+      .destroy(person.id)
+      .then(_ => setPersons(persons.filter(p => p.id !== person.id)))
+      .catch(err => console.error(err))
   }
   
   return (
@@ -60,7 +98,7 @@ const App = () => {
       />
 
       <h2>Numbers</h2>
-      <Persons persons={filteredPerson} />
+      <Persons persons={filteredPerson} onDelete={deletePerson} />
     </div>
   )
 }
