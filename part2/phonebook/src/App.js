@@ -3,12 +3,16 @@ import Form from './components/Form'
 import Input from './components/Input'
 import Persons from './components/Persons'
 import PersonService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [notificationMessage, setNotificationMessage] = useState('')
+  const [showNotification, setShowNotification] = useState(false)
+  const [notificationSuccess, setNotificationSuccess] = useState(true)
   
   const filteredPerson = persons.filter(
     p => p.name.toLowerCase().includes(filter.toLowerCase())
@@ -49,9 +53,14 @@ const App = () => {
   const createPerson = () => {
     PersonService
       .create({ name: newName, number: newNumber})
-      .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
-      .then(_ => clearInput())
-      .catch(err => console.error(err))
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+        clearInput()
+        setNotificationMessage(`Added ${returnedPerson.name}`)
+        setNotificationSuccess(true)
+        setShowNotification(true)
+        setTimeout(() => setShowNotification(false), 3000)
+      }).catch(err => console.error(err))
   }
 
   const updatePerson = (person) => {
@@ -63,9 +72,14 @@ const App = () => {
 
     PersonService
       .update(person.id, { name: newName, number: newNumber })
-      .then(returnedPerson => setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson)))
-      .then(_ => clearInput())
-      .catch(err => console.error(err))
+      .then(returnedPerson => {
+        setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
+        clearInput()
+        setNotificationMessage(`Updated ${returnedPerson.name}`)
+        setNotificationSuccess(true)
+        setShowNotification(true)
+        setTimeout(() => setShowNotification(false), 3000)
+      }).catch(err => console.error(err))
   }
 
   const deletePerson = (person) => {
@@ -76,12 +90,25 @@ const App = () => {
     PersonService
       .destroy(person.id)
       .then(_ => setPersons(persons.filter(p => p.id !== person.id)))
-      .catch(err => console.error(err))
+      .catch(err => {
+        console.error(err)
+        setNotificationMessage(`Information of ${person.name} has already been removed from server`)
+        setNotificationSuccess(false)
+        setShowNotification(true)
+        setTimeout(() => setShowNotification(false), 3000)
+      })
   }
   
   return (
     <div>
       <h2>Phonebook</h2>
+      {showNotification &&
+        <Notification
+          message={notificationMessage}
+          isSuccess={notificationSuccess}
+        />
+      }
+      
       <Input
         label="filter shown with"
         value={filter}
