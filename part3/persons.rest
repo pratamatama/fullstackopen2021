@@ -1,0 +1,33 @@
+### Get All Persons
+GET http://localhost:3001/api/persons
+
+### Show Person
+GET http://localhost:3001/api/persons/4
+
+### Delete Person
+DELETE  http://localhost:3001/api/persons/4
+
+### Create Person
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Liisa Marttinen",
+    "number": "040-243563"
+}
+
+### Create Person (Invalid)
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "number": "040-243563"
+}
+
+### Create Person (Invalid)
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Liisa Marttinen"
+}
