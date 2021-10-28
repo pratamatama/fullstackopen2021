@@ -1,0 +1,13 @@
+### Get all blogs
+GET http://localhost:3001/api/blogs
+
+### Create a blog
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+
+{
+    "title": "First blog",
+    "author": "Donny Pratama",
+    "url": "http://github.com/pratamatama",
+    "likes": 999
+}
