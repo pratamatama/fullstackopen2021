@@ -16,9 +16,9 @@ const number = process.argv[3]
 if (!name || !number) {
   console.log('phonebook:')
   Person.find({}).then(result => {
-      result.forEach(person => console.log(`${person.name} ${person.number}`))
-      mongoose.connection.close()
-    }).catch(err => console.error(err))
+    result.forEach(person => console.log(`${person.name} ${person.number}`))
+    mongoose.connection.close()
+  }).catch(err => console.error(err))
 } else {
   const person = new Person({ name, number })
   person.save().then(result => {

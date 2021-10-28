@@ -33,10 +33,10 @@ Content-Type: application/json
 }
 
 ### Update Person
-PUT http://localhost:3001/api/persons/6179edb95b01b54312e91343
+PUT http://localhost:3001/api/persons/617ab09334ad827a7beae0e6
 Content-Type: application/json
 
 {
     "name": "Donny Pratama",
-    "number": "085536321661"
+    "number": "085536321666"
 }

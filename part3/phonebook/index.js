@@ -5,23 +5,11 @@ const cors = require('cors')
 const app = express()
 const Person = require('./models/person')
 
-morgan.token('body', (req, res) => JSON.stringify(req.body));
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
+morgan.token('body', (req) => JSON.stringify(req.body))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
-
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  }
-
-  next(error)
-}
-
-app.use(errorHandler)
 
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
@@ -45,44 +33,25 @@ app.put('/api/persons/:id', (request, response, next) => {
     number: request.body.number,
   }
 
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true })
     .then(person => response.json(person))
     .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(person => response.status(204).end())
+    .then(() => response.status(204).end())
     .catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response, next) => {
-  const name = request.body.name
-  const number = request.body.number
-  
-  if (!name || name.length === 0) {
-    return response.status(422).json({
-      error: 'name is required'
-    })
-  }
+  const person = new Person({
+    name: request.body.name,
+    number: request.body.number
+  })
 
-  if (!number || number.length === 0) {
-    return response.status(422).json({
-      error: 'number is required'
-    })
-  }
-
-  Person.findOne({ name })
-    .then(result => {
-      if (result) {
-        return response.status(422).json({ error: 'name must be unique '})
-      } else {
-        const person = new Person({ name, number })
-        person.save()
-          .then(innerResult => response.status(201).json(innerResult))
-          .catch(error => next(error))
-      }
-    })
+  person.save()
+    .then(result => response.status(201).json(result))
     .catch(error => next(error))
 })
 
@@ -94,6 +63,26 @@ app.get('/info', (request, response, next) => {
     `))
     .catch(error => next(error))
 })
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(422).json({ error: error.message })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
