@@ -50,17 +50,31 @@ const App = () => {
       : updatePerson(persons[index])
   }
 
+  const showSuccessNotification = (message) => {
+    setNotificationMessage(message)
+    setNotificationSuccess(true)
+    setShowNotification(true)
+    setTimeout(() => setShowNotification(false), 3000)
+  }
+
+  const showErrorNotification = (message) => {
+    setNotificationMessage(message)
+    setNotificationSuccess(false)
+    setShowNotification(true)
+    setTimeout(() => setShowNotification(false), 3000)
+  }
+  
   const createPerson = () => {
     PersonService
       .create({ name: newName, number: newNumber})
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
         clearInput()
-        setNotificationMessage(`Added ${returnedPerson.name}`)
-        setNotificationSuccess(true)
-        setShowNotification(true)
-        setTimeout(() => setShowNotification(false), 3000)
-      }).catch(err => console.error(err))
+        showSuccessNotification(`Added ${returnedPerson.name}`)
+      }).catch(err => {
+        console.error(err)
+        showErrorNotification(err.response.data.error)
+      })
   }
 
   const updatePerson = (person) => {
@@ -75,11 +89,11 @@ const App = () => {
       .then(returnedPerson => {
         setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
         clearInput()
-        setNotificationMessage(`Updated ${returnedPerson.name}`)
-        setNotificationSuccess(true)
-        setShowNotification(true)
-        setTimeout(() => setShowNotification(false), 3000)
-      }).catch(err => console.error(err))
+        showSuccessNotification(`Updated ${returnedPerson.name}`)
+      }).catch(err => {
+        console.error(err)
+        showErrorNotification(err.response.data.error)
+      })
   }
 
   const deletePerson = (person) => {
@@ -92,10 +106,7 @@ const App = () => {
       .then(_ => setPersons(persons.filter(p => p.id !== person.id)))
       .catch(err => {
         console.error(err)
-        setNotificationMessage(`Information of ${person.name} has already been removed from server`)
-        setNotificationSuccess(false)
-        setShowNotification(true)
-        setTimeout(() => setShowNotification(false), 3000)
+        showErrorNotification(`Information of ${person.name} has already been removed from server`)
       })
   }
   
