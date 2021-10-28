@@ -2,17 +2,17 @@
 GET http://localhost:3001/api/persons
 
 ### Show Person
-GET http://localhost:3001/api/persons/4
+GET http://localhost:3001/api/persons/6179dae921795f01017b5128
 
 ### Delete Person
-DELETE  http://localhost:3001/api/persons/4
+DELETE  http://localhost:3001/api/persons/6179dae921795f01017b5128
 
 ### Create Person
 POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "name": "Liisa Marttinen",
+    "name": "Donny Pratama",
     "number": "040-243563"
 }
 
@@ -30,4 +30,13 @@ Content-Type: application/json
 
 {
     "name": "Liisa Marttinen"
+}
+
+### Update Person
+PUT http://localhost:3001/api/persons/6179edb95b01b54312e91343
+Content-Type: application/json
+
+{
+    "name": "Donny Pratama",
+    "number": "085536321661"
 }
