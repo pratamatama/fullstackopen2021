@@ -4,6 +4,7 @@ GET http://localhost:3001/api/blogs
 ### Create a blog
 POST http://localhost:3001/api/blogs
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1sdXVra2FpIiwiaWQiOiI2MTdjNGEwZmEwZGQ1ZTBiOTM3MzMzZDUiLCJpYXQiOjE2MzU1MzgxNjl9.JXAXf1psmm57wHeeZ2kvNewvbVr585NZTG3Qns_ZyoM
 
 {
     "title": "First blog",
@@ -13,7 +14,8 @@ Content-Type: application/json
 }
 
 ### Delete a blog
-DELETE http://localhost:3001/api/blogs/617c2c5c76d55b56044aef1c
+DELETE http://localhost:3001/api/blogs/617c6fbe2173bb33fde91638
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1sdXVra2FpIiwiaWQiOiI2MTdjNGEwZmEwZGQ1ZTBiOTM3MzMzZDUiLCJpYXQiOjE2MzU1MzgxNjl9.JXAXf1psmm57wHeeZ2kvNewvbVr585NZTG3Qns_ZyoM
 
 ### Update a blog
 PUT http://localhost:3001/api/blogs/617c2c5c76d55b56044aef1c
@@ -24,4 +26,25 @@ Content-Type: application/json
     "author": "Donny Pratama",
     "url": "http://github.com/pratamatama",
     "likes": 1001
+}
+
+### Get all users
+GET http://localhost:3001/api/users
+
+### Login
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+    "username": "mluukkai",
+    "password": "password"
+}
+
+### Login (wrong password)
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+    "username": "mluukkai",
+    "password": "wrong"
 }
