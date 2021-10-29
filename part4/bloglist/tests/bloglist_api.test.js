@@ -7,10 +7,7 @@ const Blog = require('../models/blog')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
-  
-  const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
-  const promiseArray = blogObjects.map(blog => blog.save())
-  await Promise.all(promiseArray)
+  await Blog.insertMany(helper.initialBlogs)
 }, 100000)
 
 describe('Blog model', () => {
@@ -55,7 +52,6 @@ describe('Blog model', () => {
 
       const blogsAtEnd = await helper.blogsInDb()
       expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
-
       const titles = blogsAtEnd.map(r => r.title)
       expect(titles).toContain('Type wars')
     })
@@ -79,15 +75,44 @@ describe('Blog model', () => {
     })
 
     test('if title and url props is missing, backend should respond with 400 Bad Request', async () => {
-      const newBlog = {
-        author: 'Robert C. Martin',
-        likes: 2
-      }
-
       await api
         .post('/api/blogs')
-        .send(newBlog)
+        .send({ author: 'Robert C. Martin', likes: 2 })
         .expect(400)
+    })
+  })
+
+  describe('PUT requests', () => {
+    test('a valid blog can be updated', async () => {
+      const newBlog = { likes: 9999 }
+      const blogsAtStart = await helper.blogsInDb()
+
+      await api
+        .put(`/api/blogs/${blogsAtStart[0].id}`)
+        .send(newBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd.length).toBe(helper.initialBlogs.length)
+      const likes = blogsAtEnd.map(n => n.likes)
+      expect(likes).toContain(newBlog.likes)
+    })
+  })
+
+  describe('DELETE requests', () => {
+    test('a valid blog can be deleted', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToDelete = blogsAtStart[0]
+
+      await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      expect(blogsAtEnd.length).toBe(helper.initialBlogs.length - 1)
+      const ids = blogsAtEnd.map(r => r.id)
+      expect(ids).not.toContain(blogToDelete.id)
     })
   })
 })

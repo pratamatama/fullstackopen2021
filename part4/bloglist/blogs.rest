@@ -11,3 +11,17 @@ Content-Type: application/json
     "url": "http://github.com/pratamatama",
     "likes": 999
 }
+
+### Delete a blog
+DELETE http://localhost:3001/api/blogs/617c2c5c76d55b56044aef1c
+
+### Update a blog
+PUT http://localhost:3001/api/blogs/617c2c5c76d55b56044aef1c
+Content-Type: application/json
+
+{
+    "title": "Updated blog",
+    "author": "Donny Pratama",
+    "url": "http://github.com/pratamatama",
+    "likes": 1001
+}
